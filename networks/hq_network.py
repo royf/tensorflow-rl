@@ -12,7 +12,7 @@ class HQNetwork(Network):
         with tf.variable_scope(self.name):
             self.num_options = 10
             self.target_ph = tf.placeholder('float32', [None], name='target')
-            self.selected_option_ph = tf.placeholder('float32', [self.batch_size, self.num_options], name='selected_option')
+            self.selected_option_ph = tf.placeholder('int32', [self.batch_size], name='selected_option')
             encoded_state = []
             diffs = []
             for i in range(self.num_options):
@@ -21,7 +21,7 @@ class HQNetwork(Network):
                     encoded_state.append(es)
                     diffs.append(self._build_q_head(es))
 
-            self.loss = self._value_function_loss(tf.reduce_sum(tf.stack(diffs, 1) * self.selected_option_ph, 1))
+            self.loss = self._value_function_loss(tf.reduce_sum(tf.stack(diffs, 1) * tf.one_hot(self.selected_option_ph, self.num_options), 1))
             self._build_gradient_ops(self.loss)
 
 
