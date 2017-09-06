@@ -141,7 +141,7 @@ class A3CDensityModelMixin(DensityModelMixin):
 
                 while self.local_step - local_step_start < self.max_local_steps and not episode_over:
                     # Choose next action and execute it
-                    a, readout_v_t, readout_pi_t = self.choose_next_action(s)                    
+                    a, readout_v_t, readout_pi_t = self.choose_next_action(s[0])
                     new_s, reward, episode_over = self.emulator.next(a)
                     total_episode_reward += reward
                     
