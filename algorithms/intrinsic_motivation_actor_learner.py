@@ -14,7 +14,6 @@ from utils.fast_cts import CTSDensityModel
 from utils.replay_memory import ReplayMemory
 from policy_based_actor_learner import A3CLearner, A3CLSTMLearner
 from value_based_actor_learner import ValueBasedLearner
-from networks.hq_network import HQNetwork
 
 
 logger = utils.logger.getLogger('intrinsic_motivation_actor_learner')
@@ -223,7 +222,7 @@ class PseudoCountQLearner(ValueBasedLearner, DensityModelMixin):
     """
     def __init__(self, args):
         self.args = args
-        super(PseudoCountQLearner, self).__init__(args, HQNetwork)
+        super(PseudoCountQLearner, self).__init__(args)
 
         self.cts_eta = args.cts_eta
         self.cts_beta = args.cts_beta

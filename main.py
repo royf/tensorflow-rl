@@ -10,6 +10,7 @@ import multiprocessing
 import tensorflow as tf
 
 from networks.q_network import QNetwork
+from networks.hq_network import HQNetwork
 from multiprocessing import Process, Queue
 from networks.dueling_network import DuelingNetwork
 from networks.continuous_actions import ContinuousPolicyNetwork, ContinuousPolicyValueNetwork
@@ -36,7 +37,7 @@ ALGORITHMS = {
     'pgq': (PGQLearner, PolicyValueNetwork),
     'trpo': (TRPOLearner, PolicyNetwork),
     'cem': (CEMLearner, PolicyNetwork),
-    'dqn-cts': (PseudoCountQLearner, QNetwork),
+    'dqn-cts': (PseudoCountQLearner, HQNetwork),
     'a3c-cts': (PseudoCountA3CLearner, PolicyValueNetwork),
     'a3c-lstm-cts': (PseudoCountA3CLSTMLearner, PolicyValueNetwork),
     'a3c-repeat': (ARA3CLearner, PolicyRepeatNetwork),
