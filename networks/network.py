@@ -48,7 +48,7 @@ class Network(object):
                 'float32', [self.batch_size, self.num_actions], name='selected_action')
 
 
-    def _build_encoder(self):
+    def _build_encoder(self, vd):
         with tf.variable_scope(self.name):
             if self.arch == 'FC':
                 layer_i = layers.flatten(self.input_ph)
@@ -61,9 +61,9 @@ class Network(object):
                 self.w3, self.b3, self.o3 = layers.fc('fc3', layers.flatten(self.o2), 20, activation=self.activation)
                 self.ox = self.o3
             elif self.arch == 'NIPS':
-                self.w1, self.b1, self.o1 = layers.conv2d('conv1', self.input_ph, 16, 8, self.input_channels, 4, activation=self.activation)
-                self.w2, self.b2, self.o2 = layers.conv2d('conv2', self.o1, 32, 4, 16, 2, activation=self.activation)
-                self.w3, self.b3, self.o3 = layers.fc('fc3', layers.flatten(self.o2), 256, activation=self.activation)
+                self.w1, self.b1, self.o1 = layers.conv2d('conv1', vd, self.input_ph, 16, 8, self.input_channels, 4, activation=self.activation)
+                self.w2, self.b2, self.o2 = layers.conv2d('conv2', vd, self.o1, 32, 4, 16, 2, activation=self.activation)
+                self.w3, self.b3, self.o3 = layers.fc('fc3', vd, layers.flatten(self.o2), 256, activation=self.activation)
                 self.ox = self.o3
             elif self.arch == 'NATURE':
                 self.w1, self.b1, self.o1 = layers.conv2d('conv1', self.input_ph, 32, 8, self.input_channels, 4, activation=self.activation)
