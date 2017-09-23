@@ -14,8 +14,7 @@ class HQNetwork(Network):
             self.num_options = 10
             self.target_ph = tf.placeholder('float32', [None], name='target')
             self.selected_option_ph = tf.placeholder('int32', [self.batch_size], name='selected_option')
-            # vd = VarDispenser(676915, self.num_options, self.selected_option_ph)
-            vd = VarDispenser(16998, self.num_options, self.selected_option_ph)
+            vd = VarDispenser(676915, self.num_options, self.selected_option_ph)
             encoded_state = self._build_encoder(vd)
 
             self.loss = self._build_q_head(vd, encoded_state)
@@ -34,13 +33,15 @@ class HQNetwork(Network):
 class VarDispenser(object):
     def __init__(self, num_vars, num_options, option_selector):
         self.num_vars = num_vars
-        self.vars = tf.matmul(tf.one_hot(option_selector, num_options), tf.get_variable('all_vars', [num_options, self.num_vars], tf.float32, self.initializer))
+        self.all_vars = tf.get_variable('all_vars', [num_options, self.num_vars], tf.float32, self.initializer)
+        self.option_vars = tf.matmul(tf.one_hot(option_selector, num_options), self.all_vars)
         self.next_index = 0
         self.inits = []
 
     def get_variable(self, name, shape, dtype, initializer):
         nvars = np.prod(shape)
-        v = tf.reshape(self.vars[:, self.next_index:self.next_index+nvars], [-1] + shape)
+        v = tf.reshape(self.option_vars[:, self.next_index:self.next_index+nvars], [-1] + shape)
+        print(name, v.shape, nvars)
         self.next_index += nvars
         self.inits.append((initializer, shape))
         return v

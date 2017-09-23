@@ -35,7 +35,7 @@ def conv2d(name, vd, _input, filters, size, channels, stride, activation='relu',
     w = conv_weight_variable(vd, [size, size, channels, filters], name+'_weights')
     b = conv_bias_variable(vd, [filters], name+'_biases')
     conv = tf.concat([tf.nn.conv2d(_input[i:i+1], w[i], strides=strides,
-            padding=padding, data_format=data_format, name=name+'_convs') for i in range(32)], 0) + b
+            padding=padding, data_format=data_format, name=name+'_convs') for i in range(32)], 0) + tf.expand_dims(tf.expand_dims(b, 1), 1)
 
     out = apply_activation(conv, name, activation)
     return w, b, out
@@ -52,8 +52,8 @@ def conv_bias_variable(vd, shape, name):
     return vd.get_variable(name, shape, dtype=tf.float32, initializer=initializer)
 
 def fc(name, vd, _input, output_dim, activation='relu'):
-    # input_dim = _input.get_shape().as_list()[1]
-    input_dim = 17
+    input_dim = _input.get_shape().as_list()[1]
+    # input_dim = 2592
     w = fc_weight_variable(vd, [input_dim, output_dim], name+'_weights')
     b = fc_bias_variable(vd, [output_dim], input_dim, name+'_biases')
     out = tf.tensordot(_input, w, 2) + b
