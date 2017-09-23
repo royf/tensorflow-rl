@@ -56,7 +56,7 @@ def fc(name, vd, _input, output_dim, activation='relu'):
     # input_dim = 2592
     w = fc_weight_variable(vd, [input_dim, output_dim], name+'_weights')
     b = fc_bias_variable(vd, [output_dim], input_dim, name+'_biases')
-    out = tf.tensordot(_input, w, 2) + b
+    out = tf.reduce_sum(tf.expand_dims(_input, 2) * w, 1) + b
 
     out = apply_activation(out, name, activation)
     return w, b, out

@@ -14,7 +14,7 @@ class HQNetwork(Network):
             self.num_options = 10
             self.target_ph = tf.placeholder('float32', [None], name='target')
             self.selected_option_ph = tf.placeholder('int32', [self.batch_size], name='selected_option')
-            vd = VarDispenser(676915, self.num_options, self.selected_option_ph)
+            vd = VarDispenser(680770, self.num_options, self.selected_option_ph)
             encoded_state = self._build_encoder(vd)
 
             self.loss = self._build_q_head(vd, encoded_state)
@@ -41,14 +41,14 @@ class VarDispenser(object):
     def get_variable(self, name, shape, dtype, initializer):
         nvars = np.prod(shape)
         v = tf.reshape(self.option_vars[:, self.next_index:self.next_index+nvars], [-1] + shape)
-        print(name, v.shape, nvars)
         self.next_index += nvars
         self.inits.append((initializer, shape))
         return v
 
     def initializer(self, shape, dtype, partition_info):
         def init():
-            return tf.get_default_session().run(tf.concat([tf.reshape(init(shape, dtype, partition_info), [-1]) for init, shape in self.inits], 0))
+            sess = tf.Session()
+            return sess.run(tf.concat([tf.reshape(init(shape, dtype, partition_info), [-1]) for init, shape in self.inits], 0))
         return tf.reshape(tf.py_func(init, [], tf.float32, False), shape)
 
     def exhausted(self):
