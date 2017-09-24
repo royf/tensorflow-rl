@@ -98,7 +98,7 @@ class ValueBasedLearner(ActorLearner):
 
         q_values = self.session.run(
             self.local_network.output_layer,
-            feed_dict={self.local_network.input_ph: [state]})[0]
+            feed_dict={self.local_network.input_ph: [state[0]], self.local_network.selected_option_ph: [state[1]]})[0]
 
         if self.exploration_strategy == 'epsilon-greedy':
             action_index = self.epsilon_greedy(q_values)

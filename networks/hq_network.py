@@ -33,8 +33,9 @@ class HQNetwork(Network):
 class VarDispenser(object):
     def __init__(self, num_vars, num_options, option_selector):
         self.num_vars = num_vars
-        self.all_vars = tf.get_variable('all_vars', [num_options, self.num_vars], tf.float32, self.initializer)
-        self.option_vars = tf.matmul(tf.one_hot(option_selector, num_options), self.all_vars)
+        self.num_options = num_options
+        self.all_vars = tf.get_variable('all_vars', [self.num_options, self.num_vars], tf.float32)
+        self.option_vars = tf.matmul(tf.one_hot(option_selector, self.num_options), self.all_vars)
         self.next_index = 0
         self.inits = []
 
@@ -46,11 +47,8 @@ class VarDispenser(object):
         return v
 
     def initializer(self, shape, dtype, partition_info):
-        def init():
-            sess = tf.Session()
-            return sess.run(tf.concat([tf.reshape(init(shape, dtype, partition_info), [-1]) for init, shape in self.inits], 0))
-        return tf.reshape(tf.py_func(init, [], tf.float32, False), shape)
+        return tf.concat([tf.reshape(init([self.num_options] + shape, dtype, partition_info), [-1]) for init, shape in self.inits], 0)
 
     def exhausted(self):
-        print(self.next_index, self.num_vars)
+        print(self.inits)
         return self.next_index == self.num_vars

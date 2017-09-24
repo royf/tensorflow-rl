@@ -409,7 +409,7 @@ class PseudoCountQLearner(ValueBasedLearner, DensityModelMixin):
                 self.save_vars()
 
                 # Choose next action and execute it
-                a, q_values = self.choose_next_action(s[0])
+                a, q_values = self.choose_next_action(s)
 
                 new_s, reward, episode_over = self.emulator.next(a)
                 total_episode_reward += reward
