@@ -34,9 +34,8 @@ def conv2d(name, vd, _input, filters, size, channels, stride, activation='relu',
 
     w = conv_weight_variable(vd, [size, size, channels, filters], name+'_weights')
     b = conv_bias_variable(vd, [filters], name+'_biases')
-    print(_input.shape, w.shape)
-    conv = tf.map_fn(lambda i: lambda inp, wei: tf.nn.conv2d(_input[i:i+1], w[i], strides=strides,
-            padding=padding, data_format=data_format, name=name+'_convs'), tf.range(tf.shape(_input)[0]), dtype=tf.float32) + tf.expand_dims(tf.expand_dims(b, 1), 1)
+    conv = tf.squeeze(tf.map_fn(lambda i: tf.nn.conv2d(_input[i:i+1], w[i], strides=strides,
+            padding=padding, data_format=data_format, name=name+'_convs'), tf.range(tf.shape(_input)[0]), dtype=tf.float32), 1) + tf.expand_dims(tf.expand_dims(b, 1), 1)
 
     out = apply_activation(conv, name, activation)
     return w, b, out
