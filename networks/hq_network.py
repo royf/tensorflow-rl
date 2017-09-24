@@ -38,16 +38,25 @@ class VarDispenser(object):
         self.option_vars = tf.matmul(tf.one_hot(option_selector, self.num_options), self.all_vars)
         self.next_index = 0
         self.inits = []
+        # self.inits = [
+        #     (RandomUniform, [8, 8, 4, 16]),
+        #     (Zeros, [16]),
+        #     (RandomUniform, [4, 4, 16, 32]),
+        #     (Zeros, [32]),
+        #     (RandomUniform, [2592, 256]),
+        #     (Zeros, [256]),
+        #     (RandomUniform, [256, 18]),
+        #     (Zeros, [18])]
 
     def get_variable(self, name, shape, dtype, initializer):
         nvars = np.prod(shape)
         v = tf.reshape(self.option_vars[:, self.next_index:self.next_index+nvars], [-1] + shape)
         self.next_index += nvars
-        self.inits.append((initializer, shape))
+        self.inits.append((initializer, vars(initializer), shape))
         return v
 
     def initializer(self, shape, dtype, partition_info):
-        return tf.concat([tf.reshape(init([self.num_options] + shape, dtype, partition_info), [-1]) for init, shape in self.inits], 0)
+        return tf.concat([tf.reshape(init([self.num_options] + shape, dtype, partition_info), [self.num_options, -1]) for init, shape in self.inits], 1)
 
     def exhausted(self):
         print(self.inits)
