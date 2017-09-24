@@ -34,25 +34,24 @@ class VarDispenser(object):
     def __init__(self, num_vars, num_options, option_selector):
         self.num_vars = num_vars
         self.num_options = num_options
-        self.all_vars = tf.get_variable('all_vars', [self.num_options, self.num_vars], tf.float32)
+        self.inits = [
+            (tf.random_uniform_initializer(-0.0625, 0.0625), [8, 8, 4, 16]),
+            (tf.zeros_initializer(), [16]),
+            (tf.random_uniform_initializer(-0.0625, 0.0625), [4, 4, 16, 32]),
+            (tf.zeros_initializer(), [32]),
+            (tf.random_uniform_initializer(-0.019641855032959652, 0.019641855032959652), [2592, 256]),
+            (tf.zeros_initializer(), [256]),
+            (tf.random_uniform_initializer(-0.0625, 0.0625), [256, 18]),
+            (tf.zeros_initializer(), [18])]
+        self.all_vars = tf.get_variable('all_vars', [self.num_options, self.num_vars], tf.float32, self.initializer)
         self.option_vars = tf.matmul(tf.one_hot(option_selector, self.num_options), self.all_vars)
         self.next_index = 0
-        self.inits = []
-        # self.inits = [
-        #     (RandomUniform, [8, 8, 4, 16]),
-        #     (Zeros, [16]),
-        #     (RandomUniform, [4, 4, 16, 32]),
-        #     (Zeros, [32]),
-        #     (RandomUniform, [2592, 256]),
-        #     (Zeros, [256]),
-        #     (RandomUniform, [256, 18]),
-        #     (Zeros, [18])]
 
     def get_variable(self, name, shape, dtype, initializer):
         nvars = np.prod(shape)
         v = tf.reshape(self.option_vars[:, self.next_index:self.next_index+nvars], [-1] + shape)
         self.next_index += nvars
-        self.inits.append((initializer, vars(initializer), shape))
+        # self.inits.append((initializer, vars(initializer), shape))
         return v
 
     def initializer(self, shape, dtype, partition_info):

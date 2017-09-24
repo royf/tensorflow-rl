@@ -34,12 +34,15 @@ def conv2d(name, vd, _input, filters, size, channels, stride, activation='relu',
 
     w = conv_weight_variable(vd, [size, size, channels, filters], name+'_weights')
     b = conv_bias_variable(vd, [filters], name+'_biases')
-    x1 = [tf.nn.conv2d(_input[i:i+1], w[i], strides=strides,
-            padding=padding, data_format=data_format, name=name+'_convs') for i in range(32)]
-    x2 = tf.concat(x1, 0)
-    conv = x2 + tf.expand_dims(tf.expand_dims(b, 1), 1)
-    # conv = tf.concat([tf.nn.conv2d(_input[i:i+1], w[i], strides=strides,
-    #         padding=padding, data_format=data_format, name=name+'_convs') for i in range(32)], 0) + tf.expand_dims(tf.expand_dims(b, 1), 1)
+
+    def map(fn, arrays, dtype=tf.float32):
+        # assumes all arrays have same leading dim
+        indices = tf.range(tf.shape(arrays[0])[0])
+        out = tf.map_fn(lambda ii: fn(*[array[ii] for array in arrays]), indices, dtype=dtype)
+        return out
+
+    conv = map(lambda inp, wei: tf.nn.conv2d(inp, wei, strides=strides,
+            padding=padding, data_format=data_format, name=name+'_convs'), _input, w) + tf.expand_dims(tf.expand_dims(b, 1), 1)
 
     out = apply_activation(conv, name, activation)
     return w, b, out
