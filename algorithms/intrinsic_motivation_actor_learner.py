@@ -356,8 +356,10 @@ class PseudoCountQLearner(ValueBasedLearner, DensityModelMixin):
         s_i, a_i, r_i, s_f, is_terminal = self.replay_memory.sample_batch(self.batch_size)
 
         feed_dict={
-            self.local_network.input_ph: s_f,
-            self.target_network.input_ph: s_f,
+            self.local_network.input_ph: s_f[0],
+            self.local_network.selecged_option_ph: s_f[1],
+            self.target_network.input_ph: s_f[0],
+            self.target_network.selected_option_ph: s_f[1]
             self.is_terminal: is_terminal,
             self.one_step_reward: r_i,
         }

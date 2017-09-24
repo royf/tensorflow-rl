@@ -38,7 +38,7 @@ class ReplayMemory(object):
 
 		# s_i, s_f = self._get_state(batch)
 		s_i = (self.screens[batch], self.phases[batch])
-		s_f = self.screens[batch+1]
+		s_f = (self.screens[batch+1], self.phases[batch+1])
 		a = self.actions[batch]
 		r = self.rewards[batch]
 		is_terminal = self.is_terminal[batch+1]

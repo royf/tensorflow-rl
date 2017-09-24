@@ -58,5 +58,4 @@ class VarDispenser(object):
         return tf.concat([tf.reshape(init([self.num_options] + shape, dtype, partition_info), [self.num_options, -1]) for init, shape in self.inits], 1)
 
     def exhausted(self):
-        print(self.inits)
         return self.next_index == self.num_vars
