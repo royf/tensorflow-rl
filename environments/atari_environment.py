@@ -87,6 +87,7 @@ class AtariEnvironment(object):
         self.env = gym.make(game)
         self.env.seed(seed)
         self.env.frameskip = frame_skip
+        self.phase = None
         if max_episode_steps:
             self.env.spec.max_episode_steps = max_episode_steps
 
@@ -118,6 +119,7 @@ class AtariEnvironment(object):
         self.state_buffer.clear()
 
         x_t = self.env.reset()
+        self.phase = 0
         x_t = self.get_preprocessed_frame(x_t)
 
         if self.use_rgb:
@@ -129,7 +131,7 @@ class AtariEnvironment(object):
         for i in range(self.agent_history_length-1):
             self.state_buffer.append(x_t)
 
-        return s_t
+        return s_t, self.phase
 
     def get_preprocessed_frame(self, observation):
         if isinstance(self.env.observation_space, Discrete):
@@ -169,6 +171,8 @@ class AtariEnvironment(object):
             action = self.gym_actions[action_index]
 
         frame, reward, terminal, info = self.env.step(action)
+        if reward:
+            self.phase += 1
 
         frame = self.get_preprocessed_frame(frame)
         state = self.get_state(frame)
@@ -179,6 +183,6 @@ class AtariEnvironment(object):
             terminal |= self.get_lives() < self.current_lives
         self.current_lives = self.get_lives()
 
-        return state, reward, terminal
+        return (state, self.phase), reward, terminal
 
 

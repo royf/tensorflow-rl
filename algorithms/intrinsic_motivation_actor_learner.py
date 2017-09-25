@@ -14,6 +14,7 @@ from utils.fast_cts import CTSDensityModel
 from utils.replay_memory import ReplayMemory
 from policy_based_actor_learner import A3CLearner, A3CLSTMLearner
 from value_based_actor_learner import ValueBasedLearner
+from networks.rq_network import RQNetwork
 
 
 logger = utils.logger.getLogger('intrinsic_motivation_actor_learner')
@@ -222,7 +223,7 @@ class PseudoCountQLearner(ValueBasedLearner, DensityModelMixin):
     """
     def __init__(self, args):
         self.args = args
-        super(PseudoCountQLearner, self).__init__(args)
+        super(PseudoCountQLearner, self).__init__(args, RQNetwork)
 
         self.cts_eta = args.cts_eta
         self.cts_beta = args.cts_beta
@@ -355,15 +356,18 @@ class PseudoCountQLearner(ValueBasedLearner, DensityModelMixin):
         s_i, a_i, r_i, s_f, is_terminal = self.replay_memory.sample_batch(self.batch_size)
 
         feed_dict={
-            self.local_network.input_ph: s_f,
-            self.target_network.input_ph: s_f,
+            self.local_network.input_ph: s_f[0],
+            self.local_network.selected_option_ph: s_f[1],
+            self.target_network.input_ph: s_f[0],
+            self.target_network.selected_option_ph: s_f[1],
             self.is_terminal: is_terminal,
             self.one_step_reward: r_i,
         }
         y_target = self.session.run(self.y_target, feed_dict=feed_dict)
 
         feed_dict={
-            self.local_network.input_ph: s_i,
+            self.local_network.input_ph: s_i[0],
+            self.local_network.selected_option_ph: s_i[1],
             self.local_network.target_ph: y_target,
             self.local_network.selected_action_ph: a_i
         }
@@ -413,7 +417,7 @@ class PseudoCountQLearner(ValueBasedLearner, DensityModelMixin):
                 total_episode_reward += reward
                 max_q = np.max(q_values)
 
-                current_frame = new_s[...,-1]
+                current_frame = new_s[0][...,-1]
                 bonus = self.density_model.update(current_frame)
                 bonuses.append(bonus)
 
