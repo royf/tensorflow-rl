@@ -357,9 +357,9 @@ class PseudoCountQLearner(ValueBasedLearner, DensityModelMixin):
 
         feed_dict={
             self.local_network.input_ph: s_f[0],
-            self.local_network.selected_option_ph: s_f[1],
+            self.local_network.rew_cnt_ph: s_f[1],
             self.target_network.input_ph: s_f[0],
-            self.target_network.selected_option_ph: s_f[1],
+            self.target_network.rew_cnt_ph: s_f[1],
             self.is_terminal: is_terminal,
             self.one_step_reward: r_i,
         }
@@ -367,7 +367,7 @@ class PseudoCountQLearner(ValueBasedLearner, DensityModelMixin):
 
         feed_dict={
             self.local_network.input_ph: s_i[0],
-            self.local_network.selected_option_ph: s_i[1],
+            self.local_network.rew_cnt_ph: s_i[1],
             self.local_network.target_ph: y_target,
             self.local_network.selected_action_ph: a_i
         }
